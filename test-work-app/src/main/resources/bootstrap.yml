@@ -1,0 +1,114 @@
+register_host: 127.0.0.1
+
+server:
+  port: 8880
+
+spring:
+  application:
+    name: test-work
+#  profiles:
+#    active: ${spring.cloud.config.profile}
+#  cloud:
+#    config:
+#      profile: local
+#      label: master
+#      uri: http://localhost:8762
+#      discovery:
+#        enabled: true
+#        service-id: wulin-config-server
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 30MB
+  datasource:
+    url: jdbc:mysql://118.24.197.45:3306/dev?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+    username: zhiling_root
+    password: ZhiLing123
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    listener:
+      type: BATCH
+    producer:
+      batchSize: 500
+      keySerializer: org.apache.kafka.common.serialization.StringSerializer
+      valueSerializer: cn.stylefeng.roses.kernel.logger.serizlizer.FastjsonKafkaSerializer
+    consumer:
+      group-id: getCommonLogList
+      keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+      valueDeserializer: com.wulin.happy.biz.log.core.serilizer.FastjsonKafkaDeserializer
+      auto-offset-reset: earliest
+      maxPollRecords: 500
+  redis:
+    host: 118.24.197.45
+    database: 0
+    port: 6379
+    password: LIYI986364Password
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-expiration-duration-in-seconds: 20   #服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除(默认90秒)
+    lease-renewal-interval-in-seconds: 5       #服务刷新时间配置，每隔这个时间会主动心跳一次(默认30秒)
+  client:
+    service-url:
+      defaultZone: http://${register_host}:8761/eureka
+    registry-fetch-interval-seconds: 10  #重新刷新服务地址的时间
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+jwt:
+  secret: pZiRY7+2fU3O+3HynML8vEcZqxXdMu3enBo8VJRPSCkWjqHc2XfJwap4B2BrwW/qz5xs831nGmLZdSqp2F6t4A==
+  expiration: 82800
+
+roses:
+  log:
+    kafka: false
+    trace: false
+    level: error,info
+
+mybatis-plus:
+  configuration:
+    # 3.0.8之前版本问题默认将枚举注册为EnumOrdinalTypeHandler,这是错误的方式,默认是 org.apache.ibatis.type.EnumTypeHandler
+    # 如果项目之中实体统一使用IEnum或注解的方式,可配置成 com.baomidou.mybatisplus.extension.handlers.EnumTypeHandler,也可省略上面的type-enums-package配置
+    # 配置type-enums-package只对注解方式的枚举处理能提前加载缓存.
+    default-enum-type-handler: com.baomidou.mybatisplus.extension.handlers.EnumTypeHandler
+
+feign:
+  hystrix:
+    enabled: false
+  client:
+    config:
+      default:
+        connectTimeout: 300  #创建连接的超时时间 单位：毫秒
+        readTimeout: 3000    #处理请求的超时时间 单位：毫秒
+        errorDecoder: cn.stylefeng.roses.core.feign.RosesFeignErrorDecoder
+        requestInterceptors:
+          - cn.stylefeng.roses.core.feign.RosesFeignHeaderProcessInterceptor
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE #为了RosesFeignHeaderProcessInterceptor
+          thread:
+            timeoutInMilliseconds: 2000
+
+um:
+  app:
+    key: 5e70476a895ccac465000022
+    master-secret: hjkmyrwksv7hm8ajjonckene8noryyui
+
+# swagger开关
+swagger:
+  enabled: true
